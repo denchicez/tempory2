@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class BaseAppSettings(BaseSettings):
     # Mongo DB
-    mongodb_hosts: str = "82.146.34.244:8000:27017"
+    mongodb_hosts: str = "82.146.34.244:27017"
     mongodb_db: str = "test"
     mongodb_tls: bool = False
     mongodb_user: str = ""
