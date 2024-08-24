@@ -24,6 +24,7 @@ async def get_pic(telegram_id: int) -> Response:
 
 @register_route.post("/account/register")
 async def register_account(account: BaseAccount):
+    account.photo_url = account.photo_url.replace('\\', '').replace('"', '')
     await upsert_item(
         item=account.model_dump(),
         collection=settings.account_collection
@@ -39,7 +40,6 @@ async def get_account(telegram_id: int) -> BaseAccount:
     print(item)
     account = BaseAccount(**item)
     return account
-
 
     # @register_route.get("/account/{telegram_id}/likes/")
     # async def get_account_likes(telegram_id: int):
