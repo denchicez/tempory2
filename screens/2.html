@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Title</title>
+</head>
+
+<body>
+<div style="padding-top: 87px; padding-left: 116px; letter-spacing: 1px; line-height: 20px; font-size: 20px; font-weight: 500"
+     class="inter">
+    connect.me
+</div>
+<div style="padding-left: 109px; padding-top: 29px">
+    <img id="selectedImage"
+         style="visibility: hidden; object-fit: cover; width: 126px; height: 126px; z-index: 1; border-radius: 100px; position: absolute"
+         src="photobase.jpg" alt="Выбранная фотография">
+    <svg width="126" height="126" viewBox="0 0 126 126" fill="none" style="z-index: 2; position: absolute"
+         xmlns="http://www.w3.org/2000/svg" class="image-fill">
+        <rect x="1" y="1" width="124" height="124" rx="62" stroke="#FFC09D" stroke-width="2"/>
+        <a id="needHide">
+            <path d="M78 65.6666C78 61.2221 77.1667 57.3333 76.3333 56.7777C75.7992 56.4216 73.2114 56.0656 69.6667 55.8558C67.6805 55.7382 71.3333 52.3333 63 52.3333C54.6667 52.3333 58.3195 55.7382 56.3333 55.8558C52.7886 56.0656 50.2008 56.4216 49.6667 56.7777C48.8333 57.3333 48 61.2221 48 65.6666C48 70.111 48.8333 73.9999 49.6667 74.5555C50.5 75.111 56.3333 75.6666 63 75.6666C69.6667 75.6666 75.5 75.111 76.3333 74.5555C77.1667 73.9999 78 70.111 78 65.6666Z"
+                  stroke="#FFC09D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M63 70.6666C65.7614 70.6666 68 68.428 68 65.6666C68 62.9052 65.7614 60.6666 63 60.6666C60.2386 60.6666 58 62.9052 58 65.6666C58 68.428 60.2386 70.6666 63 70.6666Z"
+                  stroke="#FFC09D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </a>
+    </svg>
+</div>
+<div style="padding-top: 130px">
+    <div style="padding-left: 73px; padding-top: 9px; letter-spacing: 1px; font-size: 13px; line-height: 22px; color: #BABABA; "
+         class="inter">Имя
+    </div>
+    <input id="name" style="margin-left: 70px; margin-top: 2px; width: 194px">
+</div>
+<div style="padding-top: 6px">
+    <div style="padding-left: 73px; padding-top: 9px; letter-spacing: 1px; font-size: 13px; line-height: 22px; color: #BABABA; "
+         class="inter">Дата рождения
+    </div>
+    <input id="birthday" style="margin-left: 70px; margin-top: 2px; width: 194px">
+</div>
+<div style="padding-top: 6px">
+    <div style="padding-left: 73px; padding-top: 9px; letter-spacing: 1px; font-size: 13px; line-height: 22px; color: #BABABA; "
+         class="inter">О себе
+    </div>
+    <input id="about" style="margin-left: 70px; margin-top: 2px; width: 194px">
+</div>
+<button id="formButton"
+        style="margin-left: 73px; margin-top: 28px; background: #FFC09D; border: 0; border-radius: 30px; height: 47px; width: 200px; ">
+    <div style="color: white">Создать профиль</div>
+</button>
+
+</body>
+</html>
+
+<script>
+    let uri = "http://82.146.34.244:8000"
+    // let tg = window.Telegram.WebApp;
+    // let telegram_id = tg.initDataUnsafe.user.id
+    let telegram_id = 1
+
+    const imageContainer = document.querySelector('.image-fill');
+    const svgImage = document.getElementById('needHide');
+    const selectedImage = document.getElementById('selectedImage');
+    var imgUrl = null;
+    imageContainer.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            selectedImage.style = "object-fit: cover; width: 126px; height: 126px; z-index: 1; border-radius: 100px; position: absolute"
+            svgImage.style = "visibility: hidden"
+            const form = new FormData();
+            form.append('file', file);
+            let answer = await fetch(uri + '/picture?telegram_id=' + telegram_id, {
+                method: 'POST',
+                body: form
+            });
+            imgUrl = await answer.text();
+        });
+        input.click();
+    });
+
+    const sendFormButton = document.getElementById("formButton")
+    sendFormButton.addEventListener('click', async () => {
+            const about = document.getElementById("about").value;
+            const birthday = document.getElementById("birthday").value;
+            const name = document.getElementById("name").value;
+            await fetch(uri + '/account/register', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'about': about,
+                    'birthday': birthday,
+                    'id': telegram_id,
+                    'name': name,
+                    'photo_url': imgUrl,
+                    'telegram_id': telegram_id
+                })
+            });
+        }
+    )
+
+</script>
+

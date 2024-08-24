@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Подписаться.</title>
+</head>
+<body>
+<div style="padding-top: 302px; padding-left: 80px; letter-spacing: 1px; line-height: 20px; font-size: 34px; font-weight: 500"
+     class="inter">
+    DenchicEz.
+    Подписаться.
+</div>
+<div id="name"></div>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</body>
+</html>
+<script>
+    const wrapper = document.getElementById('name');
+    let tg = window.Telegram.WebApp;
+    let telegram_id = tg.initDataUnsafe.user.id
+    wrapper.textContent = telegram_id.toString()
+</script>

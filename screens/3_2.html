@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Title</title>
+</head>
+<style>
+    .skillDiv {
+        height: 210px;
+        width: 150px;
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+    .skillDiv:hover {
+        background-color: #bebebe;
+    }
+
+    .skillDiv:hover .hide {
+        display: block;
+        background-color: #bebebe;
+    }
+</style>
+<body>
+<div id="skillsTable" class="wrapper"
+     style="display: grid; grid-column-gap: 20px;grid-row-gap: 5px;grid-template-columns: 150px 150px; width: 100%;">
+</div>
+</body>
+<script>
+    function create(htmlStr) {
+        var frag = document.createDocumentFragment(),
+            temp = document.createElement('div');
+        temp.innerHTML = htmlStr;
+        while (temp.firstChild) {
+            frag.appendChild(temp.firstChild);
+        }
+        return frag;
+    }
+
+    const table = document.getElementById('skillsTable');
+    document.addEventListener('DOMContentLoaded', async function (event) {
+        let response = await fetch('http://127.0.0.1:8001/likes?telegram_id=1488', {
+            method: 'GET',
+        });
+        let elements = await response.json()
+        for (i in elements) {
+            let element = elements.at(i)
+            table.append(create("<div class=\"skillDiv\" style=\"background-image: url(" + element["photo_url"]+ ")\">\n" +
+                "        <button class=\"declineButton\" id=\"" + element["telegram_id"] + "\"\n" +
+                "                style=\"position: absolute; background: black; width: 80px; height: 27px; z-index: 1; margin-top: 173px; margin-left: 35px; border-radius: 20px\"></button>\n" +
+                "        <button class=\"acceptButton\" id=\"" + element["telegram_id"] + "\"\n" +
+                "                style=\"position: absolute; background: red; width: 45px; height: 27px; z-index: 1; margin-top: 173px; margin-left: 35px; border-radius: 20px\"></button>\n" +
+                "    </div>"))
+        }
+
+        const wrapper = document.getElementById('skillsTable');
+        wrapper.addEventListener('click', async (event) => {
+            const isButton = event.target.className === 'acceptButton';
+            if (!isButton) {
+                return;
+            }
+            await fetch('http://127.0.0.1:8001/like', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'from_telegram_id': 1488,
+                    'to_telegram_id': event.target.id
+                })
+            });
+            wrapper.removeChild(event.target.parentElement);
+        })
+        wrapper.addEventListener('click', async (event) => {
+            const isButton = event.target.className === 'declineButton';
+            if (!isButton) {
+                return;
+            }
+            await fetch('http://127.0.0.1:8001/like', {
+                method: 'DELETE',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'from_telegram_id': 1488,
+                    'to_telegram_id': event.target.id
+                })
+            });
+            wrapper.removeChild(event.target.parentElement);
+        })
+
+    });
+</script>
+</html>

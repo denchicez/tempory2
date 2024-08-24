@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Title</title>
+</head>
+<body>
+<div id="accountBlock">
+    <div style="width: 360px; height: 640px">
+        <img id="photoAccount" src="" style="position: absolute; width: 360px; height: 640px">
+        <div id="nameAccount"  style="position: absolute; margin-top: 500px; margin-left: 100px"> </div>
+        <div id="descAccount"  style="position: absolute; margin-top: 550px; margin-left: 10px; width: 360px;"></div>
+        <button id="acceptButton" class="acceptButton"
+                style="position: absolute; background-color: red; width: 100px; height: 100px"></button>
+        <button id="declineButton" class="declineButton"
+                style="position: absolute; background-color: black; margin-left: 260px; width: 100px; height: 100px"></button>
+    </div>
+</div>
+
+
+</body>
+</html>
+<script>
+    const wrapper = document.getElementById('accountBlock');
+
+    const name = document.getElementById('nameAccount');
+    const photo = document.getElementById('photoAccount');
+    const desc = document.getElementById('descAccount');
+    const acceptButton = document.getElementById('acceptButton');
+    const declineButton = document.getElementById('declineButton');
+    var curId = null
+    var curAccount = null;
+    const accounts = [];
+
+    document.addEventListener('DOMContentLoaded', async function (event) {
+        let response = await fetch('http://127.0.0.1:8001/cards?telegram_id=1488', {
+            method: 'GET',
+        });
+        let elements = await response.json()
+        for (i in elements) {
+            let element = elements.at(i)
+            accounts.push(element)
+        }
+        curAccount = accounts.pop();
+        desc.textContent = curAccount["about"]
+        name.textContent = curAccount["name"]
+        photo.src = curAccount["photo_url"]
+        curId = Number(curAccount["telegram_id"])
+    });
+
+    wrapper.addEventListener('click', async (event) => {
+        console.log("Asdasdds")
+        const isButton = event.target.className === 'acceptButton';
+        if (!isButton) {
+            return;
+        }
+        await fetch('http://127.0.0.1:8001/like', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'from_telegram_id': 1488,
+                'to_telegram_id': curId
+            })
+        });
+        curAccount = accounts.pop();
+        desc.textContent = curAccount["about"]
+        name.textContent = curAccount["name"]
+        photo.src = curAccount["photo_url"]
+        curId = Number(curAccount["telegram_id"])
+    })
+    wrapper.addEventListener('click', async (event) => {
+        const isButton = event.target.className === 'declineButton';
+        if (!isButton) {
+            return;
+        }
+        await fetch('http://127.0.0.1:8001/like', {
+            method: 'DELETE',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'from_telegram_id': 1488,
+                'to_telegram_id': curId
+            })
+        });
+        curAccount = accounts.pop();
+        desc.textContent = curAccount["about"]
+        name.textContent = curAccount["name"]
+        photo.src = curAccount["photo_url"]
+        curId = Number(curAccount["telegram_id"])
+    })
+</script>
