@@ -37,6 +37,7 @@ async def get_account(telegram_id: int) -> BaseAccount:
         collection=settings.account_collection
     )
     del item["_id"]
+    print(item)
     account = BaseAccount.model_validate_json(**item)
     return account
 
